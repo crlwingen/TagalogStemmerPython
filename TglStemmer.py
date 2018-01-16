@@ -42,14 +42,13 @@ INFIX_SET = [
 SUFFIX_SET = [
 	'uhan', 'han',
 	'hin', 'ing',
-	'ng', 'an',
-	'in',
+	'ang', 'ng', 
+	'an', 'in',
 ]
 
 PREFIX = INFIX = SUFFIX = DUPLICATE = REPTITION = 'NONE'
 
-
-def stemmer(mode, source):
+def stemmer(mode, source, info_dis):
 	""" 
 		Stems the tokens in a sentence.
 			mode: if from .txt or string
@@ -58,7 +57,7 @@ def stemmer(mode, source):
 	"""
 
 	print("TAGALOG WORDS STEMMER....")
-	print("[1 FileName] [2 RawString]")
+	print("[1 FileName] [2 RawString] [3 ShowImfo]")
 
 	PERIOD_FLAG = True
 
@@ -92,9 +91,10 @@ def stemmer(mode, source):
 			pre_stem = clean_prefix(du1_stem)
 			rep_stem = clean_repitition(pre_stem)
 			inf_stem = clean_infix(rep_stem)
-			suf_stem = clean_suffix(inf_stem)
+			rep_stem = clean_repitition(inf_stem)
+			suf_stem = clean_suffix(rep_stem)
 			du2_stem = clean_duplication(suf_stem)
-			cle_stem = clean_lemmatized(du2_stem)
+			cle_stem = clean_stemmed(du2_stem)
 
 			if '-' in cle_stem:
 				cle_stem.replace('-', '')
@@ -103,24 +103,31 @@ def stemmer(mode, source):
 			word_info["prefix"] = PREFIX
 			word_info["infix"]  = INFIX
 			word_info["suffix"] = SUFFIX
+			word_info["repeat"] = REPTITION
 			word_info["dup#1"]  = DUPLICATE
 			word_info["dup#2"]  = DUPLICATE
 
 		else:
 
-			cle_stem = clean_lemmatized(token)
+			cle_stem = clean_stemmed(token)
 
-			word_info["root"]   = cle_stem
+			word_info["root"]   = token
 			word_info["prefix"] = 'NONE'
 			word_info["infix"]  = 'NONE'
 			word_info["suffix"] = 'NONE'
+			word_info["repeat"] = 'NONE'
 			word_info["dup#1"]  = 'NONE'
 			word_info["dup#2"]  = 'NONE'
 
 		PERIOD_FLAG = False
 		stemmed.append(word_info)
 		root.append(word_info["root"])
-		print(word_info["word"] + " : " + word_info["root"])
+
+		if info_dis == '1':
+			print(token + " : " + word_info["root"])
+		else:
+			print(token + " = ", word_info)
+
 		word_info = {}
 		pre_stem = inf_stem = suf_stem = rep_stem = \
 		du1_stem = du2_stem = cle_stem = '-'
@@ -171,7 +178,7 @@ def clean_repitition(token):
 				return token[1:]
 
 		elif check_consonant(token[0]) and len(token) >= 5:
-			if token[0: 2] == token[2: 4]:
+			if token[0: 2] == token[2: 4] and len(token) - 2 >= 4:
 				REPTITION = token[2: 4]
 				return token[2:]
 
@@ -237,11 +244,14 @@ def clean_suffix(token):
 	global SUFFIX
 
 	for suffix in SUFFIX_SET:
-		print(token[0:len(token) - len(suffix)] + " : " + suffix)
-		if len(token) - len(suffix) >= 3 and count_vowel(token[0:len(token) - len(suffix)]) >= 2:
+		if len(token) - len(suffix) >= 3 and count_vowel(token[0:len(token) - len(suffix)]) >= 2 \
+			and count_consonant(token[0:len(token) - len(suffix)]) >= 2:
+			
 			if token[len(token) - len(suffix): len(token)] == suffix:
-
 				if count_vowel(token[0: len(token) - len(suffix)]) >= 2:
+					if suffix == 'ang' and check_consonant(token[-4]):
+						continue
+						
 					SUFFIX = suffix
 					return token[0: len(token) - len(suffix)]
  
@@ -282,7 +292,23 @@ def count_vowel(token):
 	return count
 
 
-def clean_lemmatized(token):
+def count_consonant(token):
+	"""
+		Count consonants in a given token.
+			token: string to be counted for consonants
+		returns INTEGER
+	"""
+
+	count = 0
+
+	for tok in token:
+		if check_consonant(tok):
+			count+=1
+
+	return count
+
+
+def clean_stemmed(token):
 	"""
 		Checks for left-over affixes and letters.
 			token: word to be cleaned for excess affixes/letters
@@ -296,7 +322,7 @@ def clean_lemmatized(token):
 		elif token[len(token) - 1] == 'u':
 			token = change_letter(token, -1, 'o')
 
-		elif token[-1] == 'r' and (token[-2]  == 'o' or token[-2] == 'i'):
+		elif token[-1] == 'r':
 			token = change_letter(token, -1, 'd')
 
 		elif token[-1] == 'h' and check_vowel(token[-1]):
@@ -316,9 +342,15 @@ def clean_lemmatized(token):
 		if(token[-3:]) == 'han' and count_vowel(token[0:-3]) == 1:
 			token = token[0:-3] + 'i'
 
+		if(token[-3:]) == 'han' and count_vowel(token[0:-3]) > 1:
+			token = token[0:-3]
+
 		elif len(token) >= 2 and count_vowel(token) >= 3:
 			if token[-1] == 'h' and check_vowel(token[-2]):
 				token = token[0:-1]
+
+		if len(token) >= 6 and token[0:2] == token[2:4]:
+			token = token[2:]
 
 	if not check_vowel(token[-1]) and not check_consonant(token[-1]):
 		token = token[0:-1]
@@ -355,7 +387,8 @@ def read_file(source):
 
 
 mode = sys.argv[1] # 1: Text File // 2: Raw String
-source = sys.argv[2] # if 1: .txt name // 2: raw string
+source = sys.argv[2] # 1: .txt name // 2: raw string
+info_dis = sys.argv[3] # 1: no info // 2: show info
 
 if __name__ == "__main__":
-	stemmer(mode, source)
+	stemmer(mode, source, info_dis)
