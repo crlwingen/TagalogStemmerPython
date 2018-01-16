@@ -40,10 +40,10 @@ INFIX_SET = [
 ]
 
 SUFFIX_SET = [
-	'uhan', 'han',
-	'hin', 'ing',
-	'ang', 'ng', 
-	'an', 'in',
+	'han', 'hin', 
+	'ing', 'ang', 
+	'ng', 'an', 
+	'in',
 ]
 
 PREFIX = INFIX = SUFFIX = DUPLICATE = REPTITION = 'NONE'
@@ -57,7 +57,7 @@ def stemmer(mode, source, info_dis):
 	"""
 
 	print("TAGALOG WORDS STEMMER....")
-	print("[1 FileName] [2 RawString] [3 ShowImfo]")
+	print("[1 FileName] [2 RawString] [3 ShowInfo]")
 
 	PERIOD_FLAG = True
 
@@ -124,9 +124,9 @@ def stemmer(mode, source, info_dis):
 		root.append(word_info["root"])
 
 		if info_dis == '1':
-			print(token + " : " + word_info["root"])
+			print(token + ' : ' + word_info["root"])
 		else:
-			print(token + " = ", word_info)
+			print(token + ' : ' + word_info["root"] + ' = ', word_info)
 
 		word_info = {}
 		pre_stem = inf_stem = suf_stem = rep_stem = \
@@ -249,9 +249,10 @@ def clean_suffix(token):
 			
 			if token[len(token) - len(suffix): len(token)] == suffix:
 				if count_vowel(token[0: len(token) - len(suffix)]) >= 2:
-					if suffix == 'ang' and check_consonant(token[-4]):
+					if suffix == 'ang' and check_consonant(token[-4]) \
+						and token[-4] != 'r' and token[-5] != 'u':
 						continue
-						
+		
 					SUFFIX = suffix
 					return token[0: len(token) - len(suffix)]
  
