@@ -14,6 +14,7 @@ PREFIX_SET = [
 	'pinakama', 'pagpapa',
 	'pakiki', 'magpa',
 	'napaka', 'pinaka',
+	'pinagka',
 	'panganga', 'makapag',
 	'nakapag', 'tagapag',
 	'makipag', 'nakipag',
@@ -40,6 +41,7 @@ INFIX_SET = [
 ]
 
 SUFFIX_SET = [
+	'dor', 'ita',
 	'han', 'hin', 
 	'ing', 'ang', 
 	'ng', 'an', 
@@ -150,7 +152,9 @@ def clean_duplication(token):
 		token = token.split('-')
 
 		# Checks for full duplication
-		if token[0] == token[1]:
+		if token[0] == token[1] or token[0][-1] == 'u' and \
+			token[0].replace(token[0][-1], 'o') == token[1]:
+
 			DUPLICATE = token[0]
 			return token[0]
 
@@ -196,17 +200,21 @@ def clean_prefix(token):
 	for prefix in PREFIX_SET:
 		if len(token) - len(prefix) >= 3 and \
 			count_vowel(token[len(prefix):]) >= 2:
-			
+
 			if prefix == ('i') and check_consonant(token[2]):
 		 		break
 
 			elif token[0: len(prefix)] == prefix:
 				if count_vowel(token[len(prefix):]) >= 2:
-					PREFIX = prefix
+					if check_vowel(token[len(token) - len(prefix) - 1]):
+						print(prefix)  	
+						continue
 
 					if prefix == 'panganga':
 						return 'ka' + token[len(prefix):]
 					
+					PREFIX = prefix
+
 					return token[len(prefix):]
 
 	return token
@@ -244,37 +252,54 @@ def clean_suffix(token):
 	global SUFFIX
 
 	for suffix in SUFFIX_SET:
-		if len(token) - len(suffix) >= 3 and count_vowel(token[0:len(token) - len(suffix)]) >= 2 \
-			and count_consonant(token[0:len(token) - len(suffix)]) >= 2:
-			
+		if len(token) - len(suffix) >= 3 and count_vowel(token[0:len(token) - len(suffix)]) >= 2:
+				
+
 			if token[len(token) - len(suffix): len(token)] == suffix:
+				if len(suffix) == 2 and not count_consonant(token[0:len(token) - len(suffix)]) >= 1:
+					continue
+
 				if count_vowel(token[0: len(token) - len(suffix)]) >= 2:
 					if suffix == 'ang' and check_consonant(token[-4]) \
 						and token[-4] != 'r' and token[-5] != 'u':
 						continue
+
+					# if check_vowel(suffix[0]) and check_consonant(token[len])
 		
 					SUFFIX = suffix
-					return token[0: len(token) - len(suffix)]
+
+					return token[0: len(token) - len(suffix)] + 'a' if SUFFIX == 'ita' \
+						else  token[0: len(token) - len(suffix)]
  
 	return token
 
 
-def check_vowel(letter):
+def check_vowel(substring):
 	"""
-		Checks if the letter is a vowel.
-			letter: letter to be tested
+		Checks if the substring is a vowel.
+			letters: substring to be tested
 		returns BOOLEAN
 	"""
-	return letter in VOWELS
+
+	for letter in substring:
+		if letter not in VOWELS:
+			return False
+
+	return True
 
 
-def check_consonant(letter):
+def check_consonant(substring):
 	"""
 		Checks if the letter is a consonant.
-			letter: letter to be tested
+			letter: substring to be tested
 		returns BOOLEAN
 	"""
-	return letter in CONSONANTS
+
+	for letter in substring:
+		if letter not in CONSONANTS:
+			return False
+
+	return True
 
 
 def count_vowel(token):
@@ -318,13 +343,13 @@ def clean_stemmed(token):
 
 	if len(token) >= 3 and count_vowel(token) >= 2:
 		if check_consonant(token[-1]) and token[- 2] == 'u':
-			token = change_letter(token, -2, 'o')
+			token = token.replace(token[-2], 'o')
 
 		elif token[len(token) - 1] == 'u':
-			token = change_letter(token, -1, 'o')
+			token = token.replace(token[-1], 'o')
 
 		elif token[-1] == 'r':
-			token = change_letter(token, -1, 'd')
+			token = token.replace(token[-1], 'd')
 
 		elif token[-1] == 'h' and check_vowel(token[-1]):
 			token = token[0:-1]
@@ -353,25 +378,13 @@ def clean_stemmed(token):
 		if len(token) >= 6 and token[0:2] == token[2:4]:
 			token = token[2:]
 
+		if REPTITION[0] == 'r':
+			token = token.replace(token[0], 'd')
+
 	if not check_vowel(token[-1]) and not check_consonant(token[-1]):
 		token = token[0:-1]
 
 	return token
-
-
-def change_letter(token, index, letter):
-	"""
-		Replaces a letter in a token.
-			token: word to be used
-			index: index of the letter
-			letter: letter used to replace
-		returns STRING
-	"""
-	
-	_list = list(token)
-	_list[index] = letter
-
-	return ''.join(_list)
 
 
 def read_file(source):
