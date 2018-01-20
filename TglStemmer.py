@@ -27,7 +27,7 @@ PREFIX_SET = [
 	'ipa', 'nang',
 	'naka', 'pam',
 	'pan', 'pag',
-	'tag',
+	'tag', 'mai'
 	'mag', 'nam',
 	'nag', 'man',
 	'may', 'ma',
@@ -49,8 +49,6 @@ SUFFIX_SET = [
 	'in',
 ]
 
-PREFIX = INFIX = SUFFIX = DUPLICATE = REPTITION = 'NONE'
-
 def stemmer(mode, source, info_dis):
 	""" 
 		Stems the tokens in a sentence.
@@ -69,6 +67,12 @@ def stemmer(mode, source, info_dis):
 	root_only = []
 	pre_stem = inf_stem = suf_stem = rep_stem = \
 		du1_stem = du2_stem = cle_stem = '-'
+
+	PREFIX = []
+	INFIX = []
+	SUFFIX = []
+	DUPLICATE = []
+	REPITITION = []
 
 	if mode is "1":
 		print("Chosen text file as source. [" + source + "]")
@@ -90,14 +94,14 @@ def stemmer(mode, source, info_dis):
 		if PERIOD_FLAG == True or \
 			PERIOD_FLAG == False and token[0].islower():
 			
-			du1_stem = clean_duplication(token)
-			pre_stem = clean_prefix(du1_stem)
-			rep_stem = clean_repitition(pre_stem)
-			inf_stem = clean_infix(rep_stem)
-			rep_stem = clean_repitition(inf_stem)
-			suf_stem = clean_suffix(rep_stem)
-			du2_stem = clean_duplication(suf_stem)
-			cle_stem = clean_stemmed(du2_stem)
+			du1_stem = clean_duplication(token, DUPLICATE)
+			pre_stem = clean_prefix(du1_stem, PREFIX)
+			rep_stem = clean_repitition(pre_stem, REPITITION)
+			inf_stem = clean_infix(rep_stem, INFIX)
+			rep_stem = clean_repitition(inf_stem, REPITITION)
+			suf_stem = clean_suffix(rep_stem, SUFFIX)
+			du2_stem = clean_duplication(suf_stem, DUPLICATE)
+			cle_stem = clean_stemmed(du2_stem, REPITITION)
 
 			if '-' in cle_stem:
 				cle_stem.replace('-', '')
@@ -106,27 +110,26 @@ def stemmer(mode, source, info_dis):
 			word_info["prefix"] = PREFIX
 			word_info["infix"]  = INFIX
 			word_info["suffix"] = SUFFIX
-			word_info["repeat"] = REPTITION
+			word_info["repeat"] = REPITITION
 			word_info["dup#1"]  = DUPLICATE
 			word_info["dup#2"]  = DUPLICATE
 
-			global PREFIX
-			global INFIX
-			global SUFFIX
-			global DUPLICATE
-			global REPTITION
-			PREFIX = INFIX = SUFFIX = DUPLICATE = REPTITION = 'NONE'
+			PREFIX = []
+			INFIX = []
+			SUFFIX = []
+			DUPLICATE = []
+			REPITITION = []
 
 		else:
-			cle_stem = clean_stemmed(token)
+			cle_stem = clean_stemmed(token, REPITITION)
 
 			word_info["root"]   = token
-			word_info["prefix"] = 'NONE'
-			word_info["infix"]  = 'NONE'
-			word_info["suffix"] = 'NONE'
-			word_info["repeat"] = 'NONE'
-			word_info["dup#1"]  = 'NONE'
-			word_info["dup#2"]  = 'NONE'
+			word_info["prefix"] = '[]'
+			word_info["infix"]  = '[]'
+			word_info["suffix"] = '[]'
+			word_info["repeat"] = '[]'
+			word_info["dup#1"]  = '[]'
+			word_info["dup#2"]  = '[]'
 
 		PERIOD_FLAG = False
 		stemmed.append(word_info)
@@ -146,67 +149,61 @@ def stemmer(mode, source, info_dis):
 	return stemmed, root_only
 
 
-def clean_duplication(token):
+def clean_duplication(token, DUPLICATE):
 	"""
 		Checks token for duplication. (ex. araw-araw = araw)
 			token: word to be stemmed duplication
 		returns STRING
 	"""
 
-	global DUPLICATE
-
 	if '-' in token and token.index('-') != 0 and \
 		token.index('-') != len(token) -  1:
 
-		token = token.split('-')
+		split = token.split('-')
 
-		# Checks for full duplication
-		if token[0] == token[1] or token[0][-1] == 'u' and \
-			token[0].replace(token[0][-1], 'o') == token[1]:
+		if all(len(tok) >= 4 for tok in split):
+			if split[0] == token[1] or split[0][-1] == 'u' and change_letter(split[0], -1, 'o') == split[1] or \
+				split[0][-2] == 'u' and change_letter(split[0], -2, 'o')  == split[1]:
+				DUPLICATE.append(split[0])
+				return split[0]
 
-			DUPLICATE = token[0]
-			return token[0]
-
-		elif token[0] == token[1][0:len(token[0])]:
-			token = token[1]
-
+			elif split[0] == split[1][0:len(split[0])]:
+				DUPLICATE.append(split[1])
+				return split[1]
 
 		else:
-		 	return '-'.join(token)
+			return '-'.join(split)
 	
 	return token
 
 
-def clean_repitition(token):
+def clean_repitition(token, REPITITION):
 	"""
 		Checks token for repitition. (ex. nakakabaliw = nabaliw)
 			token: word to be stemmed repitition
 		returns STRING
 	"""
 
-	global REPTITION
-
 	if len(token) >= 4:
 		if check_vowel(token[0]):
 			if token[0] == token[1]:
-				REPTITION = token[0]
+				REPITITION.append(token[0])
 				return token[1:]
 
 		elif check_consonant(token[0]) and count_vowel(token) >= 2:
 			if token[0: 2] == token[2: 4] and len(token) - 2 >= 4:
-				REPTITION = token[2: 4]
+				REPITITION.append(token[2:4])
 				return token[2:]
 
 	return token
 
 
-def clean_prefix(token):
+def clean_prefix(token,	 PREFIX):
 	"""
 		Checks token for prefixes.
 			token: word to be stemmed for prefixes
 		returns STRING
 	"""
-	global PREFIX
 
 	for prefix in PREFIX_SET:
 		if len(token) - len(prefix) >= 3 and \
@@ -223,47 +220,43 @@ def clean_prefix(token):
 					if prefix == 'panganga':
 						return 'ka' + token[len(prefix):]
 					
-					PREFIX = prefix
+					PREFIX.append(prefix)
 
 					return token[len(prefix):]
 
 	return token
 
  
-def clean_infix(token):
+def clean_infix(token, INFIX):
 	"""
 		Checks token for infixes.
 			token: word to be stemmed for infixes
 		returns STRING
 	"""
 
-	global INFIX
-
 	for infix in INFIX_SET:
 		if len(token) - len(infix) >= 3 and count_vowel(token[len(infix):]) >= 2:
 			if token[0] == token[4] and token[1: 4] == infix:
-				INFIX = infix
+				INFIX.append(infix)
 				return token[4:]
 
 			elif token[2] == token[4] and token[1: 3] == infix:
-				INFIX = infix
+				INFIX.append(infix)
 				return token[0] + token[3:]
 
 			elif token[1: 3] == infix and check_vowel(token[3]):
-				INFIX = infix
+				INFIX.append(infix)
 				return token[0] + token[3:]
 
 	return token
 
 
-def clean_suffix(token):
+def clean_suffix(token, SUFFIX):
 	"""
 		Checks token for suffixes.
 			token: word to be stemmed for suffixes
 		returns STRING
 	"""
-
-	global SUFFIX
 
 	for suffix in SUFFIX_SET:
 		if len(token) - len(suffix) >= 3 and count_vowel(token[0:len(token) - len(suffix)]) >= 2:
@@ -281,7 +274,7 @@ def clean_suffix(token):
 
 					# if check_vowel(suffix[0]) and check_consonant(token[len])
 		
-					SUFFIX = suffix
+					SUFFIX.append(suffix)
 
 					return token[0: len(token) - len(suffix)] + 'a' if SUFFIX == 'ita' \
 						else  token[0: len(token) - len(suffix)]
@@ -357,7 +350,7 @@ def change_letter(token, index, letter):
 	return ''.join(_list)
 
 
-def clean_stemmed(token):
+def clean_stemmed(token, REPITITION):
 	"""
 		Checks for left-over affixes and letters.
 			token: word to be cleaned for excess affixes/letters
@@ -365,7 +358,7 @@ def clean_stemmed(token):
 	"""
 
 	if len(token) >= 3 and count_vowel(token) >= 2:
-		token = clean_repitition(token)
+		token = clean_repitition(token,	REPITITION)
 
 		if check_consonant(token[-1]) and token[- 2] == 'u':
 			token = change_letter(token, -2, 'o')
@@ -403,8 +396,8 @@ def clean_stemmed(token):
 		if len(token) >= 6 and token[0:2] == token[2:4]:
 			token = token[2:]
 
-		if REPTITION[0] == 'r':
-			token = change_letter(token, 0, 'd')
+		# if REPITITION[0] == 'r':
+		# 	token = change_letter(token, 0, 'd')
 
 		if token[-2:] == 'ng' and token[-3] == 'u':
 			token = change_letter(token, -3, 'o')
@@ -446,9 +439,9 @@ def write_file(stemmed_info, word_root, root):
 		returns NULL
 	"""
 
-	with open('output/with_info.txt', 'a') as with_info, \
-		open('output/root_word.txt', 'a') as root_word, \
-		open('output/root_only.txt', 'a') as root_only:
+	with open('output/with_info.txt', 'w') as with_info, \
+		open('output/root_word.txt', 'w') as root_word, \
+		open('output/root_only.txt', 'w') as root_only:
 		
 		for inf, rw, ro in zip(stemmed_info, word_root, root):
 			with_info.write(str(inf) + '\n')
