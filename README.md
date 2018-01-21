@@ -1,14 +1,14 @@
 # Tagalog Words Stemmer using Python
 _By: Carl Jerwin F. Gensaya, PUP 4th Year ComSci Student_ <br />
-###### Description:
+**Description:**
 
 Tagalog Words Stemmer is a program that processes Tagalog words by removing all of its affixes and returns the root of the words.
 
-**Sample Output:**
+##### Sample Output:
 
-_"Patuloy pa din sila sa paghahanap ng posibleng gamot sa malubhang sakit ng dinaramdam ng kanyang ina."_ <br />
+> _"Patuloy pa din sila sa paghahanap ng posibleng gamot sa malubhang sakit ng dinaramdam ng kanyang ina."_ <br />
 
-**word : root**
+##### word : root
 - patuloy : tuloy
 - pa : pa
 - din : din
@@ -27,7 +27,7 @@ _"Patuloy pa din sila sa paghahanap ng posibleng gamot sa malubhang sakit ng din
 - kanyang : kanya
 - ina. : ina <br />
 
-**word_info**
+##### word_info
 - {'dup#1': [], 'repeat': [], 'root': 'tuloy', 'word': 'patuloy', 'dup#2': [], 'infix': [], 'suffix': [], 'prefix': ['pa']}
 - {'dup#1': [], 'repeat': [], 'root': 'pa', 'word': 'pa', 'dup#2': [], 'infix': [], 'suffix': [], 'prefix': []}
 - {'dup#1': [], 'repeat': [], 'root': 'din', 'word': 'din', 'dup#2': [], 'infix': [], 'suffix': [], 'prefix': []}
@@ -46,8 +46,7 @@ _"Patuloy pa din sila sa paghahanap ng posibleng gamot sa malubhang sakit ng din
 - {'dup#1': [], 'repeat': [], 'root': 'kanya', 'word': 'kanyang', 'dup#2': [], 'infix': [], 'suffix': ['ng'], 'prefix': []}
 - {'dup#1': [], 'repeat': [], 'root': 'ina', 'word': 'ina.', 'dup#2': [], 'infix': [], 'suffix': [], 'prefix': []} <br />
 
-#### Usage:
-
+##### Usage:
 python TglStemmer.py [mode] [source] [info] <br />
 - **modes:** [1: text_file] [2: raw_string]
 - **source:** [1: file_name] [2: "raw_string"]
