@@ -6,7 +6,7 @@ Tagalog Words Stemmer is a program that processes Tagalog words by removing all 
 
 **Sample Output:**
 
-_"Patuloy pa din sila sa paghahanap ng posibleng gamot sa malubhang sakit ng dinaramdam ng kanyang ina."_ <br /> <br />
+_"Patuloy pa din sila sa paghahanap ng posibleng gamot sa malubhang sakit ng dinaramdam ng kanyang ina."_ <br />
 
 **word : root**
 - patuloy : tuloy
@@ -44,9 +44,9 @@ _"Patuloy pa din sila sa paghahanap ng posibleng gamot sa malubhang sakit ng din
 - {'dup#1': [], 'repeat': [], 'root': 'daramdam', 'word': 'dinaramdam', 'dup#2': [], 'infix': ['in'], 'suffix': [], 'prefix': []}
 - {'dup#1': [], 'repeat': [], 'root': 'ng', 'word': 'ng', 'dup#2': [], 'infix': [], 'suffix': [], 'prefix': []}
 - {'dup#1': [], 'repeat': [], 'root': 'kanya', 'word': 'kanyang', 'dup#2': [], 'infix': [], 'suffix': ['ng'], 'prefix': []}
-- {'dup#1': [], 'repeat': [], 'root': 'ina', 'word': 'ina.', 'dup#2': [], 'infix': [], 'suffix': [], 'prefix': []}
+- {'dup#1': [], 'repeat': [], 'root': 'ina', 'word': 'ina.', 'dup#2': [], 'infix': [], 'suffix': [], 'prefix': []} <br />
 
-
+#### Usage:
 
 python TglStemmer.py [mode] [source] [info] <br />
 - **modes:** [1: text_file] [2: raw_string]
