@@ -405,7 +405,9 @@ def clean_stemmed(token, REPITITION):
 		if token[-1] == 'h':
 			token = token[0:-1]
 
-		if token[0:2] != 'ng' and check_consonant(token[0:2]):
+		if (token[0:2] != 'ng'  or token[0:2] != 'kr' or token[0:2] != 'kw' or token[0:2] != 'ts') \
+			and check_consonant(token[0:2]):
+			
 			token = token[1:]
 
 	if not check_vowel(token[-1]) and not check_consonant(token[-1]):
@@ -455,3 +457,27 @@ info_dis = sys.argv[3] # 1: no info // 2: show info
 
 if __name__ == "__main__":
 	stemmer(mode, source, info_dis)
+
+
+"""
+TODOS:
+	mag-aa
+	mag-alinlangan : g-alinlang ??
+	lalung-lalo
+	mangitlog : gitlog
+	mangingisdang : gingisda
+	napapakinggan : pakingg
+	pagkakasunod-sunod : sunod-sunod???
+	pinagtratrabahuhan : ratrabaho ???
+	2nd pass
+	bibigay = igay?
+	if prefix[-1] = c >> should be v + c
+	kaluguran : lugor
+	partial >> if token[0] == token[1][0:len(token[0])] >> ret token[1]
+	prefix + partial dupli 
+	prefix >> if - in token > if tok - prefix != tok2 > return token
+	punong-bayan : punong-bay
+	tagpuan : puan
+	tsismis : sismis
+	katangi-tanging : tangi-tang
+"""
