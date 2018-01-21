@@ -1,7 +1,5 @@
-# TagalogStemmerPython
-## Tagalog Words Stemmer using Python
-By: Carl Jerwin F. Gensaya, PUP 4th Year ComSci Student <br />
-__
+# Tagalog Words Stemmer using Python
+__By: Carl Jerwin F. Gensaya, PUP 4th Year ComSci Student__ <br />
 ###### Usage:
 python TglStemmer.py [mode] [source] [info] <br />
 - **modes:** [1: text_file] [2: raw_string]
