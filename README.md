@@ -1,6 +1,6 @@
 # Tagalog Words Stemmer using Python
 _By: Carl Jerwin F. Gensaya, PUP 4th Year ComSci Student_ <br />
-###### Usage:
+###### Description:
 
 Tagalog Words Stemmer is a program that processes Tagalog words by removing all of its affixes and returns the root of the words.
 
