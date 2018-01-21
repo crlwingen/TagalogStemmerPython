@@ -6,7 +6,7 @@ Tagalog Words Stemmer is a program that processes Tagalog words by removing all 
 
 ##### Sample Output:
 
-> _"Patuloy pa din sila sa paghahanap ng posibleng gamot sa malubhang sakit ng dinaramdam ng kanyang ina."_ <br />
+> _Input: "Patuloy pa din sila sa paghahanap ng posibleng gamot sa malubhang sakit ng dinaramdam ng kanyang ina."_ <br />
 
 ##### word : root
 - patuloy : tuloy
