@@ -25,9 +25,10 @@ PREFIX_SET = [
 	'tiga', 'pala',
 	'pina', 'pang',
 	'ipa', 'nang',
+	'mang',
 	'naka', 'pam',
 	'pan', 'pag',
-	'tag', 'mai'
+	'tag', 'mai',
 	'mag', 'nam',
 	'nag', 'man',
 	'may', 'ma',
@@ -102,6 +103,7 @@ def stemmer(mode, source, info_dis):
 			suf_stem = clean_suffix(rep_stem, SUFFIX)
 			du2_stem = clean_duplication(suf_stem, DUPLICATE)
 			cle_stem = clean_stemmed(du2_stem, REPITITION)
+			cle_stem = clean_duplication(cle_stem, REPITITION)
 
 			if '-' in cle_stem:
 				cle_stem.replace('-', '')
@@ -194,6 +196,10 @@ def clean_repitition(token, REPITITION):
 			if token[0: 2] == token[2: 4] and len(token) - 2 >= 4:
 				REPITITION.append(token[2:4])
 				return token[2:]
+			
+			elif token[0: 3] == token[3: 6] and len(token) - 3 >= 4:
+				REPITITION.append(token[3:6])
+				return token[3:]
 
 	return token
 
@@ -210,18 +216,27 @@ def clean_prefix(token,	 PREFIX):
 			count_vowel(token[len(prefix):]) >= 2:
 
 			if prefix == ('i') and check_consonant(token[2]):
-		 		continue
+				continue
 
-			elif token[0: len(prefix)] == prefix:
+			if '-' in token:	
+				token = token.split('-')
+
+				if token[0] == prefix and check_vowel(token[1][0]):
+					PREFIX.append(prefix)
+					return token[1]
+
+				token = '-'.join(token)
+
+			if token[0: len(prefix)] == prefix:
 				if count_vowel(token[len(prefix):]) >= 2:
 					# if check_vowel(token[len(token) - len(prefix) - 1]):
-					# 	continue
+				# 	continue
 
 					if prefix == 'panganga':
+						PREFIX.append(prefix)
 						return 'ka' + token[len(prefix):]
 					
 					PREFIX.append(prefix)
-
 					return token[len(prefix):]
 
 	return token
@@ -266,8 +281,6 @@ def clean_suffix(token, SUFFIX):
 					continue
 
 				if count_vowel(token[0: len(token) - len(suffix)]) >= 2:
-					
-					
 					if suffix == 'ang' and check_consonant(token[-4]) \
 						and token[-4] != 'r' and token[-5] != 'u':
 						continue
@@ -357,19 +370,21 @@ def clean_stemmed(token, REPITITION):
 		returns STRING
 	"""
 
+	CC_EXP = ['ng', 'kr', 'kw', 'ts', 'tr']
+
 	if len(token) >= 3 and count_vowel(token) >= 2:
 		token = clean_repitition(token,	REPITITION)
 
 		if check_consonant(token[-1]) and token[- 2] == 'u':
 			token = change_letter(token, -2, 'o')
 
-		elif token[len(token) - 1] == 'u':
+		if token[len(token) - 1] == 'u':
 			token = change_letter(token, -1, 'o')
 
-		elif token[-1] == 'r':
+		if token[-1] == 'r':
 			token = change_letter(token, -1, 'd')
 
-		elif token[-1] == 'h' and check_vowel(token[-1]):
+		if token[-1] == 'h' and check_vowel(token[-1]):
 			token = token[0:-1]
 
 		# if token[0] == 'i':
@@ -389,15 +404,15 @@ def clean_stemmed(token, REPITITION):
 		if(token[-3:]) == 'han' and count_vowel(token[0:-3]) > 1:
 			token = token[0:-3]
 
-		elif len(token) >= 2 and count_vowel(token) >= 3:
+		if len(token) >= 2 and count_vowel(token) >= 3:
 			if token[-1] == 'h' and check_vowel(token[-2]):
 				token = token[0:-1]
 
 		if len(token) >= 6 and token[0:2] == token[2:4]:
 			token = token[2:]
 
-		# if REPITITION[0] == 'r':
-		# 	token = change_letter(token, 0, 'd')
+		if any(REP[0] == 'r' for REP in REPITITION):
+			token = change_letter(token, 0, 'd')
 
 		if token[-2:] == 'ng' and token[-3] == 'u':
 			token = change_letter(token, -3, 'o')
@@ -405,9 +420,7 @@ def clean_stemmed(token, REPITITION):
 		if token[-1] == 'h':
 			token = token[0:-1]
 
-		if (token[0:2] != 'ng'  or token[0:2] != 'kr' or token[0:2] != 'kw' or token[0:2] != 'ts') \
-			and check_consonant(token[0:2]):
-			
+		if any(token[0:2] != CC for CC in CC_EXP) and check_consonant(token[0:2]):
 			token = token[1:]
 
 	if not check_vowel(token[-1]) and not check_consonant(token[-1]):
@@ -461,23 +474,15 @@ if __name__ == "__main__":
 
 """
 TODOS:
-	mag-aa
-	mag-alinlangan : g-alinlang ??
 	lalung-lalo
-	mangitlog : gitlog
 	mangingisdang : gingisda
 	napapakinggan : pakingg
-	pagkakasunod-sunod : sunod-sunod???
-	pinagtratrabahuhan : ratrabaho ???
 	2nd pass
-	bibigay = igay?
 	if prefix[-1] = c >> should be v + c
-	kaluguran : lugor
 	partial >> if token[0] == token[1][0:len(token[0])] >> ret token[1]
 	prefix + partial dupli 
 	prefix >> if - in token > if tok - prefix != tok2 > return token
 	punong-bayan : punong-bay
 	tagpuan : puan
-	tsismis : sismis
 	katangi-tanging : tangi-tang
 """

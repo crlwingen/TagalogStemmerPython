@@ -7,23 +7,23 @@ python TglStemmer.py [mode] [source] [info] <br />
 - **info:** [1 word-root] [2: show_word_info]<br />
 
 ##### ToDo-List:
-- [ ] mag-aa
-- [ ] mag-alinlangan : g-alinlang ??
+- [x] mag-aa
+- [x] mag-alinlangan : g-alinlang ??
 - [ ] lalung-lalo
-- [ ] mangitlog : gitlog
+- [x] mangitlog : gitlog
 - [ ] mangingisdang : gingisda
 - [ ] napapakinggan : pakingg
-- [ ] pagkakasunod-sunod : sunod-sunod???
-- [ ] pinagtratrabahuhan : ratrabaho ???
+- [x] pagkakasunod-sunod : sunod-sunod???
+- [x] pinagtratrabahuhan : ratrabaho ???
 - [ ] 2nd pass
-- [ ] bibigay = igay?
+- [x] bibigay = igay?
 - [ ] if prefix[-1] = c >> should be v + c
-- [ ] kaluguran : lugor
+- [x] kaluguran : lugor
 - [ ] partial >> if token[0] == token[1][0:len(token[0])] >> ret token[1]
 - [ ] prefix + partial dupli 
 - [ ] prefix >> if - in token > if tok - prefix != tok2 > return token
 - [ ] punong-bayan : punong-bay
 - [ ] tagpuan : puan
-- [ ] tsismis : sismis
+- [x] tsismis : sismis
 - [ ] katangi-tanging : tangi-tang
 - [ ] validation data
