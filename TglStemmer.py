@@ -149,8 +149,8 @@ def stemmer(mode, source, info_dis):
 		du1_stem = du2_stem = cle_stem = '-'
 
 	write_file(stemmed, word_root, root_only)
-	print('Accuracy- ' + str(validate(root_only, errors)) + '%')
-	print('Errors- ' + str(errors))
+	print('Accuracy: ' + str(validate(root_only, errors)) + '%')
+	print('Errors: ' + str(errors))
 
 	return stemmed, root_only
 
@@ -471,7 +471,9 @@ def write_file(stemmed_info, word_root, root):
 def validate(stemmed, errors):
 	"""
 		Calculates accuracy.
-
+			stemmed: list of stemmed words
+			errors: list of stemming errors
+		returns FLOAT
 	"""
 
 	check = 0
@@ -486,7 +488,7 @@ def validate(stemmed, errors):
 		else:
 			errors.append(stem)
 	
-	return check / len(stemmed) * 100
+	return format((check / len(stemmed) * 100), '.2f')
 
 
 mode = sys.argv[1] # 1: Text File // 2: Raw String
