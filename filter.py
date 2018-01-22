@@ -11,5 +11,4 @@ def remove_duplicate():
 	with open('validation.txt', 'a') as valid:
 		valid.write('\n'.join(set(read_data())))
 
-
 remove_duplicate()

@@ -12,21 +12,20 @@ CONSONANTS = "bdghklmnngprstwyBDGHKLMNNGPRSTWY"
 PREFIX_SET = [
 	'nakikipag', 'pakikipag',
 	'pinakama', 'pagpapa',
+	'pinagka', 'panganga', 
+	'makapag', 'nakapag', 
+	'tagapag', 'makipag', 
+	'nakipag', 'tigapag',
 	'pakiki', 'magpa',
 	'napaka', 'pinaka',
-	'pinagka',
-	'panganga', 'makapag',
-	'nakapag', 'tagapag',
-	'makipag', 'nakipag',
-	'tigapag', 'pinag',
-	'pagka', 'ipinag',
-	'mapag', 'mapa',
-	'taga', 'ipag',
-	'tiga', 'pala',
-	'pina', 'pang',
-	'ipa', 'nang',
-	'mang',
-	'naka', 'pam',
+	'ipinag', 'pagka', 
+	'pinag', 'mapag', 
+	'mapa', 'taga', 
+	'ipag', 'tiga', 
+	'pala', 'pina', 
+	'pang', 'naka',
+	'nang', 'mang',
+	'ipa', 'pam',
 	'pan', 'pag',
 	'tag', 'mai',
 	'mag', 'nam',
@@ -50,6 +49,9 @@ SUFFIX_SET = [
 	'in',
 ]
 
+PERIOD_FLAG = True
+PASS_FLAG = False
+
 def stemmer(mode, source, info_dis):
 	""" 
 		Stems the tokens in a sentence.
@@ -61,20 +63,23 @@ def stemmer(mode, source, info_dis):
 	print("TAGALOG WORDS STEMMER....")
 	print("[1 FileName] [2 RawString] [3 ShowInfo]")
 
-	PERIOD_FLAG = True
-	word_info = {}
-	stemmed = []
-	word_root = []
-	root_only = []
-	errors = []
-	pre_stem = inf_stem = suf_stem = rep_stem = \
+	global PERIOD_FLAG
+	global PASS_FLAG
+
+	word_info    = {}
+	stemmed      = []
+	word_root    = []
+	root_only    = []
+	errors       = []
+	pre_stem     = inf_stem = suf_stem = rep_stem = \
 		du1_stem = du2_stem = cle_stem = '-'
 
-	PREFIX = []
-	INFIX = []
-	SUFFIX = []
-	DUPLICATE = []
+	PREFIX     = []
+	INFIX      = []
+	SUFFIX     = []
+	DUPLICATE  = []
 	REPITITION = []
+	CLEANERS   = []
 
 	if mode is "1":
 		print("Chosen text file as source. [" + source + "]")
@@ -88,14 +93,13 @@ def stemmer(mode, source, info_dis):
 		print("Unknown mode chosen. Exiting...")
 		sys.exit()
 
-	for token in tokens:
-		token = token.lower() if PERIOD_FLAG == True else token
-		
+	for token in tokens:		
 		word_info["word"] = token
 		
-		if PERIOD_FLAG == True or \
-			PERIOD_FLAG == False and token[0].islower():
-			
+		if (PERIOD_FLAG == True and token[0].isupper()) or \
+			(PERIOD_FLAG == False and token[0].islower()):
+
+			token 	 = token.lower()		
 			du1_stem = clean_duplication(token, DUPLICATE)
 			pre_stem = clean_prefix(du1_stem, PREFIX)
 			rep_stem = clean_repitition(pre_stem, REPITITION)
@@ -103,38 +107,52 @@ def stemmer(mode, source, info_dis):
 			rep_stem = clean_repitition(inf_stem, REPITITION)
 			suf_stem = clean_suffix(rep_stem, SUFFIX)
 			du2_stem = clean_duplication(suf_stem, DUPLICATE)
-			cle_stem = clean_stemmed(du2_stem, REPITITION)
-			cle_stem = clean_duplication(cle_stem, REPITITION)
+			cle_stem = clean_stemmed(du2_stem, CLEANERS, REPITITION)
+			cle_stem = clean_duplication(cle_stem, DUPLICATE)
 
 			if '-' in cle_stem:
 				cle_stem.replace('-', '')
+
+			# if stemmed is wrong, go to 2nd pass
+			if check_validation(cle_stem) == False:
+				PASS_FLAG = True
+				du1_stem  = clean_duplication(cle_stem, DUPLICATE)
+				pre_stem  = clean_prefix(du1_stem, PREFIX)
+				rep_stem  = clean_repitition(pre_stem, REPITITION)
+				inf_stem  = clean_infix(rep_stem, INFIX)
+				rep_stem  = clean_repitition(inf_stem, REPITITION)
+				suf_stem  = clean_suffix(rep_stem, SUFFIX)
+				du2_stem  = clean_duplication(suf_stem, DUPLICATE)
+				cle_stem  = clean_stemmed(du2_stem, CLEANERS, REPITITION)
+				cle_stem  = clean_duplication(cle_stem, DUPLICATE)
 
 			word_info["root"]   = cle_stem
 			word_info["prefix"] = PREFIX
 			word_info["infix"]  = INFIX
 			word_info["suffix"] = SUFFIX
 			word_info["repeat"] = REPITITION
-			word_info["dup#1"]  = DUPLICATE
-			word_info["dup#2"]  = DUPLICATE
+			word_info["dupli"]  = DUPLICATE
+			word_info["clean"]  = CLEANERS
 
-			PREFIX = []
-			INFIX = []
-			SUFFIX = []
-			DUPLICATE = []
+			PASS_FLAG  = False
+			PREFIX     = []
+			INFIX      = []
+			SUFFIX     = []
+			DUPLICATE  = []
 			REPITITION = []
+			CLEANERS   = []
 
 		else:
-			cle_stem = clean_stemmed(token, REPITITION)
-
+			PERIOD_FLAG = False
+			cle_stem = clean_stemmed(token, CLEANERS, REPITITION)
 			word_info["root"]   = token
 			word_info["prefix"] = '[]'
 			word_info["infix"]  = '[]'
 			word_info["suffix"] = '[]'
 			word_info["repeat"] = '[]'
-			word_info["dup#1"]  = '[]'
-			word_info["dup#2"]  = '[]'
+			word_info["dupli"]  = '[]'
+			word_info["clean"]   = '[]'
 
-		PERIOD_FLAG = False
 		stemmed.append(word_info)
 		root_only.append(word_info["root"])
 		word_root.append(word_info["word"] + ' : ' + word_info["root"])
@@ -150,7 +168,7 @@ def stemmer(mode, source, info_dis):
 
 	write_file(stemmed, word_root, root_only)
 	print('Accuracy: ' + str(validate(root_only, errors)) + '%')
-	print('Errors: ' + str(errors))
+	print('Errors: ' + (str(set(errors)) if len(errors) >= 1 else '[]'))
 
 	return stemmed, root_only
 
@@ -176,6 +194,16 @@ def clean_duplication(token, DUPLICATE):
 			elif split[0] == split[1][0:len(split[0])]:
 				DUPLICATE.append(split[1])
 				return split[1]
+
+			elif split[0][-2:] == 'ng':
+				if split[0][-3] == 'u':
+					if  split[0][0:-3] + 'o' == split[1]:
+						DUPLICATE.append(split[1])
+						return split[1]
+
+					elif split[0][0:-2] == split[1]:
+						DUPLICATE.append(split[1])
+						return split[1]
 
 		else:
 			return '-'.join(split)
@@ -210,7 +238,7 @@ def clean_repitition(token, REPITITION):
 
 def clean_prefix(token,	 PREFIX):
 	"""
-		Checks token for prefixes.
+		Checks token for prefixes. (ex. naligo = ligo)
 			token: word to be stemmed for prefixes
 		returns STRING
 	"""
@@ -248,7 +276,7 @@ def clean_prefix(token,	 PREFIX):
  
 def clean_infix(token, INFIX):
 	"""
-		Checks token for infixes.
+		Checks token for infixes. (ex. bumalik = balik)
 			token: word to be stemmed for infixes
 		returns STRING
 	"""
@@ -272,7 +300,7 @@ def clean_infix(token, INFIX):
 
 def clean_suffix(token, SUFFIX):
 	"""
-		Checks token for suffixes.
+		Checks token for suffixes. (ex. bigayan = bigay)
 			token: word to be stemmed for suffixes
 		returns STRING
 	"""
@@ -367,70 +395,92 @@ def change_letter(token, index, letter):
 	return ''.join(_list)
 
 
-def clean_stemmed(token, REPITITION):
+def clean_stemmed(token, CLEANERS, REPITITION):
 	"""
 		Checks for left-over affixes and letters.
 			token: word to be cleaned for excess affixes/letters
 		returns STRING
 	"""
 
-	CC_EXP = ['ng', 'kr', 'kw', 'ts', 'tr']
+	global PERIOD_FLAG
+	global PASS_FLAG
+
+	CC_EXP = ['ng', 'kr', 'kw', 'ts', 'tr'] # Consonant + Consonant Exceptions
 
 	if len(token) >= 3 and count_vowel(token) >= 2:
 		token = clean_repitition(token,	REPITITION)
 
 		if check_consonant(token[-1]) and token[- 2] == 'u':
+			CLEANERS.append('u')
 			token = change_letter(token, -2, 'o')
 
 		if token[len(token) - 1] == 'u':
+			CLEANERS.append('u')
 			token = change_letter(token, -1, 'o')
 
 		if token[-1] == 'r':
+			CLEANERS.append('r')
 			token = change_letter(token, -1, 'd')
 
 		if token[-1] == 'h' and check_vowel(token[-1]):
+			CLEANERS.append('h')
 			token = token[0:-1]
 
 		# if token[0] == 'i':
 		# 	token = token[1:]
 
 		if token[0] == token[1]:
+			CLEANERS.append(token[0])
 			token = token[1:]
 
 		if (token[0: 2] == 'ka' or token[0: 2] == 'pa') and check_consonant(token[2]) \
 			and count_vowel(token) >= 3:
 			
+			CLEANERS.append(token[0: 2])
 			token = token[2:]
 
 		if(token[-3:]) == 'han' and count_vowel(token[0:-3]) == 1:
+			CLEANERS.append('han')
 			token = token[0:-3] + 'i'
 
 		if(token[-3:]) == 'han' and count_vowel(token[0:-3]) > 1:
+			CLEANERS.append('han')
 			token = token[0:-3]
 
 		if len(token) >= 2 and count_vowel(token) >= 3:
 			if token[-1] == 'h' and check_vowel(token[-2]):
+				CLEANERS.append('h')
 				token = token[0:-1]
 
 		if len(token) >= 6 and token[0:2] == token[2:4]:
+			CLEANERS.append('0:2')
 			token = token[2:]
 
 		if any(REP[0] == 'r' for REP in REPITITION):
+			CLEANERS.append('r')
 			token = change_letter(token, 0, 'd')
 
 		if token[-2:] == 'ng' and token[-3] == 'u':
+			CLEANERS.append('u')
 			token = change_letter(token, -3, 'o')
 
 		if token[-1] == 'h':
+			CLEANERS.append('h')
 			token = token[0:-1]
 
 		if any(token[0:2] != CC for CC in CC_EXP) and check_consonant(token[0:2]):
+			CLEANERS.append(token[0:2])
 			token = token[1:]
 
+	if token[-1] == '.' and PASS_FLAG == False:
+		PERIOD_FLAG = True
+
 	if not check_vowel(token[-1]) and not check_consonant(token[-1]):
+		CLEANERS.append(token[-1])
 		token = token[0:-1]
 
 	if not check_vowel(token[0]) and not check_consonant(token[0]):
+		CLEANERS.append(token[0])
 		token = token[1:]
 
 	return token
@@ -468,6 +518,14 @@ def write_file(stemmed_info, word_root, root):
 			root_only.write(ro + '\n')
 
 
+def check_validation(token):
+	with open('validation.txt', 'r') as valid:
+		data = valid.read().replace('\n', ' ')
+
+	return True if token in data else False
+
+
+
 def validate(stemmed, errors):
 	"""
 		Calculates accuracy.
@@ -501,13 +559,10 @@ if __name__ == "__main__":
 
 """
 TODOS:
-	lalung-lalo
 	mangingisdang : gingisda
 	napapakinggan : pakingg
-	2nd pass
 	if prefix[-1] = c >> should be v + c
 	partial >> if token[0] == token[1][0:len(token[0])] >> ret token[1]
-	prefix + partial dupli 
 	prefix >> if - in token > if tok - prefix != tok2 > return token
 	punong-bayan : punong-bay
 	tagpuan : puan
