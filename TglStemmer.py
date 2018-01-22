@@ -66,6 +66,7 @@ def stemmer(mode, source, info_dis):
 	stemmed = []
 	word_root = []
 	root_only = []
+	errors = []
 	pre_stem = inf_stem = suf_stem = rep_stem = \
 		du1_stem = du2_stem = cle_stem = '-'
 
@@ -148,6 +149,9 @@ def stemmer(mode, source, info_dis):
 		du1_stem = du2_stem = cle_stem = '-'
 
 	write_file(stemmed, word_root, root_only)
+	print('Accuracy- ' + str(validate(root_only, errors)) + '%')
+	print('Errors- ' + str(errors))
+
 	return stemmed, root_only
 
 
@@ -462,6 +466,27 @@ def write_file(stemmed_info, word_root, root):
 			with_info.write(str(inf) + '\n')
 			root_word.write(rw + '\n')
 			root_only.write(ro + '\n')
+
+
+def validate(stemmed, errors):
+	"""
+		Calculates accuracy.
+
+	"""
+
+	check = 0
+
+	with open('validation.txt', 'r') as valid:
+		data = valid.read().replace('\n', ' ')
+		
+	for stem in stemmed:
+		if stem[0].isupper() or stem in data:
+			check += 1
+
+		else:
+			errors.append(stem)
+	
+	return check / len(stemmed) * 100
 
 
 mode = sys.argv[1] # 1: Text File // 2: Raw String
