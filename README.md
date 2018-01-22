@@ -47,11 +47,15 @@ Tagalog Words Stemmer is a program that processes Tagalog words by removing all 
 - {'dup#1': [], 'repeat': [], 'root': 'kanya', 'word': 'kanyang', 'dup#2': [], 'infix': [], 'suffix': ['ng'], 'prefix': []}
 - {'dup#1': [], 'repeat': [], 'root': 'ina', 'word': 'ina.', 'dup#2': [], 'infix': [], 'suffix': [], 'prefix': []} <br />
 
+##### validation
+- Accuracy: 94.12%
+- Errors: ['daramdam'] <br />
+
 ##### Usage:
-> python TglStemmer.py [mode] [source] [info] <br />
+> fpython TglStemmer.py [mode] [source] [info] <br />
 - **modes:** [1: text_file] [2: raw_string]
 - **source:** [1: file_name] [2: "raw_string"]
-- **info:** [1 word-root] [2: show_word_info]<br />
+- **info:** [1 word-root] [2: show_word_info] <br />
 
 ##### Fix List:
 - [x] mag-aa
