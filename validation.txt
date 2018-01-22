@@ -36,7 +36,6 @@ eleksiyon
 nood
 relihyon
 Zambales
-nira
 lingap
 mamalaki
 Mindorense
@@ -1163,7 +1162,6 @@ merito
 love
 iuro
 lugi
-inirang-puri
 tiwala
 dabog
 konsolidasyon
@@ -4369,7 +4367,6 @@ telektuwal
 alat
 songgo
 Badawi
-niraha
 kuryente
 rinsipiyo
 mistol
@@ -5705,7 +5702,6 @@ garap
 lasak
 lahad
 tikis
-itan
 pilita
 mahay
 nangan
@@ -6896,7 +6892,6 @@ hugot
 pirma
 mong
 Kanluranin
-inira
 rincipales
 garal
 diplomasya
@@ -7150,7 +7145,6 @@ Batangas
 butihang-asal
 Pangrehiyong
 talsik
-silang
 Aprika
 yente
 puluto
