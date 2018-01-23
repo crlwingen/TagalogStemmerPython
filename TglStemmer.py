@@ -25,6 +25,7 @@ PREFIX_SET = [
 	'pala', 'pina', 
 	'pang', 'naka',
 	'nang', 'mang',
+	'sing',
 	'ipa', 'pam',
 	'pan', 'pag',
 	'tag', 'mai',
@@ -180,12 +181,15 @@ def clean_duplication(token, DUPLICATE):
 		returns STRING
 	"""
 
+	if check_validation(token):
+		return token
+
 	if '-' in token and token.index('-') != 0 and \
 		token.index('-') != len(token) -  1:
 
 		split = token.split('-')
 
-		if all(len(tok) >= 4 for tok in split):
+		if all(len(tok) >= 3 for tok in split):
 			if split[0] == token[1] or split[0][-1] == 'u' and change_letter(split[0], -1, 'o') == split[1] or \
 				split[0][-2] == 'u' and change_letter(split[0], -2, 'o')  == split[1]:
 				DUPLICATE.append(split[0])
@@ -197,13 +201,15 @@ def clean_duplication(token, DUPLICATE):
 
 			elif split[0][-2:] == 'ng':
 				if split[0][-3] == 'u':
-					if  split[0][0:-3] + 'o' == split[1]:
+					if split[0][0:-3] + 'o' == split[1]:
+						print('test')
 						DUPLICATE.append(split[1])
 						return split[1]
 
-					elif split[0][0:-2] == split[1]:
-						DUPLICATE.append(split[1])
-						return split[1]
+				if split[0][0:-2] == split[1]:
+					print('test')
+					DUPLICATE.append(split[1])
+					return split[1]
 
 		else:
 			return '-'.join(split)
@@ -217,6 +223,9 @@ def clean_repitition(token, REPITITION):
 			token: word to be stemmed repitition
 		returns STRING
 	"""
+
+	if check_validation(token):
+		return token
 
 	if len(token) >= 4:
 		if check_vowel(token[0]):
@@ -242,6 +251,9 @@ def clean_prefix(token,	 PREFIX):
 			token: word to be stemmed for prefixes
 		returns STRING
 	"""
+
+	if check_validation(token):
+		return token
 
 	for prefix in PREFIX_SET:
 		if len(token) - len(prefix) >= 3 and \
@@ -281,6 +293,9 @@ def clean_infix(token, INFIX):
 		returns STRING
 	"""
 
+	if check_validation(token):
+		return token
+
 	for infix in INFIX_SET:
 		if len(token) - len(infix) >= 3 and count_vowel(token[len(infix):]) >= 2:
 			if token[0] == token[4] and token[1: 4] == infix:
@@ -304,7 +319,10 @@ def clean_suffix(token, SUFFIX):
 			token: word to be stemmed for suffixes
 		returns STRING
 	"""
-
+	
+	if check_validation(token):
+		return token
+	
 	for suffix in SUFFIX_SET:
 		if len(token) - len(suffix) >= 3 and count_vowel(token[0:len(token) - len(suffix)]) >= 2:
 
@@ -405,7 +423,21 @@ def clean_stemmed(token, CLEANERS, REPITITION):
 	global PERIOD_FLAG
 	global PASS_FLAG
 
-	CC_EXP = ['ng', 'kr', 'kw', 'ts', 'tr'] # Consonant + Consonant Exceptions
+	CC_EXP = ['ng', 'kr', 'kw', 'ts', 'tr', 'pr', 'sw'] # Consonant + Consonant Exceptions
+
+	if token[-1] == '.' and PASS_FLAG == False:
+		PERIOD_FLAG = True
+
+	if not check_vowel(token[-1]) and not check_consonant(token[-1]):
+		CLEANERS.append(token[-1])
+		token = token[0:-1]
+
+	if not check_vowel(token[0]) and not check_consonant(token[0]):
+		CLEANERS.append(token[0])
+		token = token[1:]
+
+	if check_validation(token):
+		return token
 
 	if len(token) >= 3 and count_vowel(token) >= 2:
 		token = clean_repitition(token,	REPITITION)
@@ -471,17 +503,6 @@ def clean_stemmed(token, CLEANERS, REPITITION):
 		if any(token[0:2] != CC for CC in CC_EXP) and check_consonant(token[0:2]):
 			CLEANERS.append(token[0:2])
 			token = token[1:]
-
-	if token[-1] == '.' and PASS_FLAG == False:
-		PERIOD_FLAG = True
-
-	if not check_vowel(token[-1]) and not check_consonant(token[-1]):
-		CLEANERS.append(token[-1])
-		token = token[0:-1]
-
-	if not check_vowel(token[0]) and not check_consonant(token[0]):
-		CLEANERS.append(token[0])
-		token = token[1:]
 
 	return token
 
@@ -567,4 +588,6 @@ TODOS:
 	punong-bayan : punong-bay
 	tagpuan : puan
 	katangi-tanging : tangi-tang
+	panana = s?
+	2800 - Validation
 """
