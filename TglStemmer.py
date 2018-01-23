@@ -43,6 +43,7 @@ INFIX_SET = [
 ]
 
 SUFFIX_SET = [
+	'syon',
 	'dor', 'ita',
 	'han', 'hin', 
 	'ing', 'ang', 
@@ -423,7 +424,7 @@ def clean_stemmed(token, CLEANERS, REPITITION):
 	global PERIOD_FLAG
 	global PASS_FLAG
 
-	CC_EXP = ['ng', 'kr', 'kw', 'ts', 'tr', 'pr', 'sw'] # Consonant + Consonant Exceptions
+	CC_EXP = ['gl', 'gr', 'ng', 'kr', 'kl', 'kw', 'ts', 'tr', 'pr', 'sw', 'sy'] # Consonant + Consonant Exceptions
 
 	if token[-1] == '.' and PASS_FLAG == False:
 		PERIOD_FLAG = True
@@ -567,7 +568,9 @@ def validate(stemmed, errors):
 		else:
 			errors.append(stem)
 	
-	return format((check / len(stemmed) * 100), '.2f')
+	return format((float(check) / len(stemmed) * 100), '.2f') # Python 2.7
+	# return format((check / len(stemmed) * 100), '.2f') # Python 3.0
+
 
 
 mode = sys.argv[1] # 1: Text File // 2: Raw String
@@ -589,5 +592,7 @@ TODOS:
 	tagpuan : puan
 	katangi-tanging : tangi-tang
 	panana = s?
-	2800 - Validation
+	nin?
+	syon?
+	Validation: 5000
 """
