@@ -4,7 +4,7 @@ import sys
 	CONSTANTS 
 """
 VOWELS = "aeiouAEIOU"
-CONSONANTS = "bdghklmnngprstwyBDGHKLMNNGPRSTWY"
+CONSONANTS = "bcdfghklmnngpqrstvwyBCDFGHKLMNNGPQRSTVWY"
 
 """ 
 	Affixes
@@ -43,12 +43,12 @@ INFIX_SET = [
 ]
 
 SUFFIX_SET = [
-	'syon',
-	'dor', 'ita',
-	'han', 'hin', 
-	'ing', 'ang', 
-	'ng', 'an', 
-	'in',
+	'syon','dor', 
+	'ita', 'han', 
+	'hin', 'ing', 
+	'ang', 'ng', 
+	'an', 'in', 
+	'g',
 ]
 
 PERIOD_FLAG = True
@@ -137,6 +137,7 @@ def stemmer(mode, source, info_dis):
 			word_info["clean"]  = CLEANERS
 
 			PASS_FLAG  = False
+			PERIOD_FLAG = False
 			PREFIX     = []
 			INFIX      = []
 			SUFFIX     = []
@@ -203,12 +204,10 @@ def clean_duplication(token, DUPLICATE):
 			elif split[0][-2:] == 'ng':
 				if split[0][-3] == 'u':
 					if split[0][0:-3] + 'o' == split[1]:
-						print('test')
 						DUPLICATE.append(split[1])
 						return split[1]
 
 				if split[0][0:-2] == split[1]:
-					print('test')
 					DUPLICATE.append(split[1])
 					return split[1]
 
@@ -320,13 +319,14 @@ def clean_suffix(token, SUFFIX):
 			token: word to be stemmed for suffixes
 		returns STRING
 	"""
-	
+
+	SUF_CANDIDATE = []
+
 	if check_validation(token):
 		return token
 	
 	for suffix in SUFFIX_SET:
 		if len(token) - len(suffix) >= 3 and count_vowel(token[0:len(token) - len(suffix)]) >= 2:
-
 			if token[len(token) - len(suffix): len(token)] == suffix:
 				if len(suffix) == 2 and not count_consonant(token[0:len(token) - len(suffix)]) >= 1:
 					continue
@@ -337,12 +337,23 @@ def clean_suffix(token, SUFFIX):
 						continue
 
 					# if check_vowel(suffix[0]) and check_consonant(token[len])
-		
-					SUFFIX.append(suffix)
 
-					return token[0: len(token) - len(suffix)] + 'a' if SUFFIX == 'ita' \
-						else  token[0: len(token) - len(suffix)]
- 
+					print(token[0: len(token) - len(suffix)] + " : " + suffix)
+
+					if check_validation(token[0: len(token) - len(suffix)]):
+						SUFFIX.append(suffix)
+						return token[0: len(token) - len(suffix)] + 'a' if SUFFIX == 'ita' \
+							else  token[0: len(token) - len(suffix)]
+
+					elif len(SUF_CANDIDATE) == 0:
+						SUF_CANDIDATE.append(suffix)
+						SUF_CANDIDATE.append(token[0: len(token) - len(suffix)])
+
+	if(len(SUF_CANDIDATE) == 2):
+		SUFFIX = SUF_CANDIDATE[0]
+		return SUF_CANDIDATE[1][0: len(token) - len(suffix)] + 'a' if SUFFIX == 'ita' \
+			else  SUF_CANDIDATE[1][0: len(token) - len(suffix)]
+
 	return token
 
 
@@ -424,7 +435,7 @@ def clean_stemmed(token, CLEANERS, REPITITION):
 	global PERIOD_FLAG
 	global PASS_FLAG
 
-	CC_EXP = ['gl', 'gr', 'ng', 'kr', 'kl', 'kw', 'ts', 'tr', 'pr', 'sw', 'sy'] # Consonant + Consonant Exceptions
+	CC_EXP = ['dr', 'gl', 'gr', 'ng', 'kr', 'kl', 'kw', 'ts', 'tr', 'pr', 'pl', 'pw', 'sw', 'sy'] # Consonant + Consonant Exceptions
 
 	if token[-1] == '.' and PASS_FLAG == False:
 		PERIOD_FLAG = True
@@ -542,7 +553,8 @@ def write_file(stemmed_info, word_root, root):
 
 def check_validation(token):
 	with open('validation.txt', 'r') as valid:
-		data = valid.read().replace('\n', ' ')
+		data = valid.read().replace('\n', ' ').split(' ')
+		# data = set([line.strip('\n') for line in valid.readlines()])
 
 	return True if token in data else False
 
@@ -559,7 +571,8 @@ def validate(stemmed, errors):
 	check = 0
 
 	with open('validation.txt', 'r') as valid:
-		data = valid.read().replace('\n', ' ')
+		data = valid.read().replace('\n', ' ').split(' ')
+		# data = set([line.strip('\n') for line in valid.readlines()])
 		
 	for stem in stemmed:
 		if stem[0].isupper() or stem in data:
@@ -595,4 +608,5 @@ TODOS:
 	nin?
 	syon?
 	Validation: 5000
+	Karatagan - ragatan??
 """
