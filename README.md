@@ -1,5 +1,4 @@
 # Tagalog Words Stemmer using Python
-_By: Carl Jerwin F. Gensaya, PUP 4th Year ComSci Student_ <br /> <br />
 
 ### Description:
 
